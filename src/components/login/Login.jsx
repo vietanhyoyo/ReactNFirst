@@ -9,7 +9,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-//import Axios from 'axios';
+import { connect } from 'react-redux';
 import { useNavigate } from 'react-router-dom'
 
 
@@ -34,7 +34,7 @@ const theme = createTheme({
   }
 });
 
-export default function Login() {
+function Login(props) {
 
   const navigate = useNavigate();
 
@@ -60,7 +60,6 @@ export default function Login() {
   }
 
   const postAPI = (account) => {
-    console.log(account);
     fetch('https://qlsc.maysoft.io/server/api/auth/login', {
       method: "POST",
       mode: 'cors',
@@ -71,8 +70,29 @@ export default function Login() {
       .then(json => {
         //console.log(json);
         if (json.status) {
-          alert(json.data.access_token);
-          navigate('/home');
+          let token = json.data.access_token;
+          //lưu vào local storage
+          localStorage.setItem('qlscToken', token);
+          //Cập nhập token vào redux
+          props.saveToken(token);
+          //Lấy dữ liệu cho trang home sau đó chuyển tra
+          fetch('https://qlsc.maysoft.io/server/api/getAllReports', {
+            method: "POST",
+            body: JSON.stringify({
+              page: "1"
+            }),
+            headers: {
+              "Content-type": "application/json; charset=UTF-8",
+              'Authorization': 'Bearer ' + token,
+            }
+          })
+            .then(response => response.json())
+            .then(json => {
+              //Cập nhật lại Redux
+              props.updateData(json.data.data);
+              navigate('/home');
+            })
+            .catch(err => console.log(err));
         }
         else {
           alert('Tài khoản hoặc mật khẩu không đúng.')
@@ -158,3 +178,19 @@ export default function Login() {
     </ThemeProvider>
   );
 }
+
+//Lấy state của redux
+const mapStateToProps = (state) => {
+  return {
+    dataAPI: state.data
+  }
+}
+//Tạo action để gọi đến redux
+const mapDispatchToProps = (dispatch) => {
+  return {
+    updateData: (input) => dispatch({ type: 'UPDATE_DATA', payload: input }),
+    saveToken: (input) => dispatch({ type: 'SAVE_TOKEN', payload: input })
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -19,6 +19,18 @@ function getFormattedDate(int) {
     return day + "/" + month + "/" + year + ' ' + hours + ':' + minutes;
 }
 
+const showStatus = (status) => {
+    if (status === '1') return <Typography variant="caption" display="inline" color="green">
+        Mới
+    </Typography>
+    if (status === '0') return <Typography variant="caption" display="inline" color="yellow">
+        Phân tích
+    </Typography>
+    else return <Typography variant="caption" display="inline" color="blue">
+        Hoàn thành
+    </Typography>
+}
+
 const Report = (props) => {
     return (
         <Paper
@@ -27,16 +39,14 @@ const Report = (props) => {
             <Box sx={{ display: 'flex', width: '100%', justifyContent: 'space-between' }}>
                 <Box sx={{ display: 'flex' }}>
                     <Box>
-                        <Typography variant="h6" paddingBottom='0px'>
+                        <Typography variant="h6" paddingBottom='0px' marginRight='6px' >
                             {props.reportNo !== undefined && props.reportNo}
                         </Typography>
-                        <Typography variant="caption" display="inline" fontStyle='italic'>
+                        <Typography variant="caption" display="inline" fontStyle='italic' padding='0px'>
                             {props.reportTime !== undefined && getFormattedDate(props.reportTime)}
                         </Typography>
                     </Box>
-                    <Typography variant="caption" display="inline" color="yellow">
-                        Phân tích
-                    </Typography>
+                    {showStatus(props.status)}
                 </Box>
                 <Box>
                     <IconButton color="inherit">
@@ -45,12 +55,12 @@ const Report = (props) => {
                 </Box>
             </Box>
             <Box>
-                <Typography variant="caption" display="inline">
-                    Tự nguyện | Trang thiết bị/cơ sở hạ tầng
+                <Typography variant="caption" display="inline" color='#777'>
+                    {props.reportType === '0' ? 'Tự nguyện' : 'Bắt buộc'} | Trang thiết bị/cơ sở hạ tầng
                 </Typography>
             </Box>
             <Box>
-                <Typography>
+                <Typography variant="body2">
                     {props.reporterName !== undefined && props.reporterName}
                 </Typography>
                 <Typography variant="body2">

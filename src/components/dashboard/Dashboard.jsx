@@ -25,8 +25,8 @@ import InputLabel from '@mui/material/InputLabel';
 import Report from './reports/Report'
 import { mainListItems } from './listItems';
 import Masonry from '@mui/lab/Masonry';
-import { dataAPI } from './data'
-import './dashboard.css'
+import './dashboard.css';
+import { connect } from 'react-redux';
 
 function dateToString(date) {
     let year = date.getFullYear();
@@ -104,31 +104,24 @@ const mdTheme = createTheme({
     }
 });
 
-function DashboardContent() {
+function Dashboard(props) {
     //Đóng mở drawer
     const [open, setOpen] = React.useState(true);
     const toggleDrawer = () => {
         setOpen(!open);
     };
 
-    //Du lieu API
-    const [data, setData] = React.useState({
-        data: dataAPI
-    })
     //Dữ liệu được hiển thị
     const [displayData, setDisplayData] = React.useState({
-        data: dataAPI
+        data: props.dataAPI
     })
     //filter
     const [filter, setFilter] = React.useState({
         startDate: new Date(1970, 0, 18, 0, 0, 0),
         endDate: new Date(1970, 0, 25, 0, 0, 0),
-        status: 0
+        status: 3,
+        type: 2
     })
-
-    const handleChange = () => {
-        console.log('dee');
-    }
 
     const getWidth = () => {
         if (window.innerWidth < 700) return 1;
@@ -139,7 +132,7 @@ function DashboardContent() {
 
     React.useEffect(() => {
         let datafilter = {
-            data: dataAPI
+            data: props.dataAPI
         }
         if (filter.startDate !== undefined) {
             let start = filter.startDate;
@@ -150,13 +143,45 @@ function DashboardContent() {
         }
         if (filter.endDate !== undefined) {
             let end = filter.endDate;
-            end.setHours(23,59);
+            end.setHours(23, 59);
             datafilter.data = datafilter.data.filter(ele => {
                 return ele.reportTime <= end.getTime();
             })
         }
+        if (filter.status !== 3) {
+            let status = filter.status;
+            datafilter.data = datafilter.data.filter(ele => {
+                return Number(ele.status) === status;
+            })
+        }
+        if (filter.type !== 2) {
+            let type = filter.type;
+            datafilter.data = datafilter.data.filter(ele => {
+                return Number(ele.reportType) === type;
+            })
+        }
         setDisplayData(datafilter);
-    }, [filter])
+    }, [filter, props.dataAPI])
+
+    React.useEffect(() => {
+        fetch('https://qlsc.maysoft.io/server/api/getAllReports', {
+            method: "POST",
+            body: JSON.stringify({
+                page: "1"
+            }),
+            headers: {
+                "Content-type": "application/json; charset=UTF-8",
+                'Authorization': 'Bearer ' + localStorage.getItem('qlscToken'),
+            }
+        })
+            .then(response => response.json())
+            .then(json => {
+                //Cập nhật lại Redux
+                props.updateData(json.data.data);
+            })
+            .catch(err => console.log(err));
+
+    }, [props.token])
 
     return (
         <ThemeProvider theme={mdTheme}>
@@ -246,8 +271,8 @@ function DashboardContent() {
                                                     backgroundColor: '#fff',
                                                     fontSize: '12px',
                                                     color: '#777',
-                                                    padding: '2px',
-                                                    top: -11,
+                                                    padding: '4px',
+                                                    top: -13,
                                                     left: 8
                                                 }}
                                             >Ngày bắt đầu</label>
@@ -285,8 +310,8 @@ function DashboardContent() {
                                                     backgroundColor: '#fff',
                                                     fontSize: '12px',
                                                     color: '#777',
-                                                    padding: '2px',
-                                                    top: -11,
+                                                    padding: '4px',
+                                                    top: -13,
                                                     left: 8
                                                 }}
                                             >Ngày kết thúc</label>
@@ -316,7 +341,7 @@ function DashboardContent() {
                                                 }}
                                             />
                                         </FormControl>
-                                        <FormControl >
+                                        <FormControl sx={{ paddingRight: '10px' }} >
                                             <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
                                             <Select
                                                 labelId="demo-simple-select-label"
@@ -324,15 +349,37 @@ function DashboardContent() {
                                                 value={filter.status}
                                                 label="Trạng thái"
                                                 onChange={event => {
+
                                                     setFilter(prev => (
                                                         { ...prev, status: event.target.value }))
                                                 }
                                                 }
                                                 sx={{ width: 200 }}
                                             >
-                                                <MenuItem value={0}>Tất cả</MenuItem>
-                                                <MenuItem value={1}>Phân tích</MenuItem>
-                                                <MenuItem value={2}>Mới</MenuItem>
+                                                <MenuItem value={3}>Tất cả</MenuItem>
+                                                <MenuItem value={0}>Phân tích</MenuItem>
+                                                <MenuItem value={1}>Mới</MenuItem>
+                                                <MenuItem value={2}>Hoàn thành</MenuItem>
+                                            </Select>
+                                        </FormControl >
+                                        <FormControl sx={{ paddingRight: '10px' }} >
+                                            <InputLabel id="demo-simple-select-label">Loại</InputLabel>
+                                            <Select
+                                                labelId="demo-simple-select-label"
+                                                id="demo-simple-select"
+                                                value={filter.type}
+                                                label="Loại"
+                                                onChange={event => {
+
+                                                    setFilter(prev => (
+                                                        { ...prev, type: event.target.value }))
+                                                }
+                                                }
+                                                sx={{ width: 200 }}
+                                            >
+                                                <MenuItem value={2}>Tất cả</MenuItem>
+                                                <MenuItem value={0}>Tự nguyện</MenuItem>
+                                                <MenuItem value={1}>Bắc buộc</MenuItem>
                                             </Select>
                                         </FormControl >
                                     </Box>
@@ -343,19 +390,22 @@ function DashboardContent() {
                                 <Box sx={{ width: '100%', minHeight: 393 }}>
                                     <Masonry columns={getWidth()} spacing={2} sx={{ display: 'flex', flexWrap: 'wrap' }}>
                                         {displayData.data.map((ele, index) => {
+                                            console.log(ele.reportType)
                                             return <Report
                                                 key={index}
                                                 reporterName={ele.reporterName}
                                                 reportNo={ele.reportNo}
                                                 detailDescription={ele.detailDescription}
                                                 reportTime={ele.reportTime}
+                                                incidentObject={ele.incidentObject}
+                                                status={ele.status}
+                                                reportType={ele.reportType}
                                             />
                                         })}
                                     </Masonry>
                                 </Box>
                             </Grid>
                         </Grid>
-
                         <Copyright sx={{ pt: 4 }} />
                     </Container>
                 </Box>
@@ -364,6 +414,18 @@ function DashboardContent() {
     );
 }
 
-export default function Dashboard() {
-    return <DashboardContent />;
+//Lấy state của redux
+const mapStateToProps = (state) => {
+    return {
+        dataAPI: state.data,
+        qlscToken: state.token
+    }
 }
+//Tạo action để gọi đến redux
+const mapDispatchToProps = (dispatch) => {
+    return {
+        updateData: (input) => dispatch({ type: 'UPDATE_DATA', payload: input })
+    }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Dashboard);
