@@ -12,11 +12,11 @@ import TvIcon from '@mui/icons-material/Tv';
 
 export const mainListItems = (
   <React.Fragment>
-    <ListItemButton>
+    <ListItemButton >
       <ListItemIcon>
-        <FormatListBulletedIcon />
-      </ListItemIcon>
-      <ListItemText primary="Danh mục" />
+        <FormatListBulletedIcon color='primary'/>
+      </ListItemIcon >
+      <ListItemText primary="Danh mục" sx={{color: '#0A8E9D'}}/>
     </ListItemButton>
     <ListItemButton>
       <ListItemIcon>

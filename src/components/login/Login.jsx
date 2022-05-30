@@ -61,31 +61,24 @@ export default function Login() {
 
   const postAPI = (account) => {
     console.log(account);
-    // fetch('https://qlsc.maysoft.io/server/api/auth/login', {
-    //     method: "POST",
-    //     mode: 'cors',
-    //     body: JSON.stringify(account),
-    //     headers: { "Content-type": "application/json; charset=UTF-8" },
-    // })
-    //     .then(response => response.json())
-    //     .then(json => {
-    //         //console.log(json);
-    //         if (json.status) {
-    //           alert(json.data.access_token)
-    //             //navigation.navigate('Home');
-    //         }
-    //         else {
-    //             alert('Tài khoản hoặc mật khẩu không đúng.')
-    //         }
-    //     })
-    //     .catch(err => console.log(err));
-
-    // Axios.post('https://qlsc.maysoft.io/server/api/auth/login', {
-    //   account
-    // })
-    //   .then(res => res.data)
-    //   .then(res => { console.log(res) })
-    //   .catch(err => console.log(err));
+    fetch('https://qlsc.maysoft.io/server/api/auth/login', {
+      method: "POST",
+      mode: 'cors',
+      body: JSON.stringify(account),
+      headers: { "Content-type": "application/json; charset=UTF-8" },
+    })
+      .then(response => response.json())
+      .then(json => {
+        //console.log(json);
+        if (json.status) {
+          alert(json.data.access_token);
+          navigate('/home');
+        }
+        else {
+          alert('Tài khoản hoặc mật khẩu không đúng.')
+        }
+      })
+      .catch(err => console.log(err));
 
   }
 
@@ -94,7 +87,6 @@ export default function Login() {
     const data = new FormData(event.currentTarget);
     if (formValidate(data.get('username'), data.get('password'))) {
       postAPI({ username: data.get('username'), password: data.get('password') })
-      navigate('/home');
     }
   };
 
