@@ -289,6 +289,7 @@ function Dashboard(props) {
                                                     fontSize: '15px',
                                                     fontWeight: '100',
                                                     borderStyle: 'solid',
+                                                    marginBottom: '20px'
                                                 }}
                                                 name='start-date'
                                                 onChange={event => {
@@ -328,6 +329,7 @@ function Dashboard(props) {
                                                     fontSize: '15px',
                                                     fontWeight: '100',
                                                     borderStyle: 'solid',
+                                                    marginBottom: '20px'
                                                 }}
                                                 name='end-date'
                                                 onChange={event => {
@@ -341,13 +343,14 @@ function Dashboard(props) {
                                                 }}
                                             />
                                         </FormControl>
-                                        <FormControl sx={{ paddingRight: '10px' }} >
+                                        <FormControl sx={{ paddingRight: '10px' ,  marginBottom: '20px' }} >
                                             <InputLabel id="demo-simple-select-label">Trạng thái</InputLabel>
                                             <Select
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
                                                 value={filter.status}
                                                 label="Trạng thái"
+                                                marginBottom= '20px'
                                                 onChange={event => {
 
                                                     setFilter(prev => (
@@ -362,7 +365,7 @@ function Dashboard(props) {
                                                 <MenuItem value={2}>Hoàn thành</MenuItem>
                                             </Select>
                                         </FormControl >
-                                        <FormControl sx={{ paddingRight: '10px' }} >
+                                        <FormControl sx={{ paddingRight: '10px', marginBottom: '20px' }} >
                                             <InputLabel id="demo-simple-select-label">Loại</InputLabel>
                                             <Select
                                                 labelId="demo-simple-select-label"
